@@ -8,7 +8,7 @@ import astropy.units as u
 app = Flask(__name__)
 
 # 讀取 CSV 檔案
-df = pd.read_csv('your_star_data.csv')
+df = pd.read_csv('PS_2024.10.04_01.33.00.csv')
 
 # 將赤經、赤緯和距離轉換為星座標
 ra = df['ra']
