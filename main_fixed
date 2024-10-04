@@ -186,3 +186,99 @@ app.on('window-all-closed', function () {
 
 
 #electron .
+
+
+
+#星等及星星大小
+@app.route('/generate_star_map', methods=['POST'])
+def generate_star_map():
+    lat = float(request.json['lat'])
+    lon = float(request.json['lon'])
+
+    # 根據可見光星等 sy_vmag，設置星星的大小
+    magnitude = df['sy_vmag']
+    
+    # 通過正規化星等來控制 marker 的大小，星等越小，星星越亮（marker 越大）
+    marker_size = np.clip(20 - magnitude, 1, 20)  # 根據星等調整大小，限制範圍在 1 到 20 之間
+
+    sky_coords = SkyCoord(ra=ra*u.degree, dec=dec*u.degree, distance=distance*u.pc, frame='icrs')
+
+    trace = go.Scattergeo(
+        lon=ra,
+        lat=dec,
+        mode='markers',
+        marker=dict(size=marker_size, color='yellow', opacity=0.8),
+        hoverinfo='text',
+        text=df['pl_name'] + '<br>Magnitude: ' + magnitude.astype(str)
+    )
+
+    layout = go.Layout(
+        title=f'Star Sky from ({lat}°, {lon}°)',
+        geo=dict(
+            projection_type='azimuthal equal area',
+            showland=True,
+            showcoastlines=False,
+            bgcolor="black",
+            lataxis=dict(range=[-90, 90]),
+            lonaxis=dict(range=[-180, 180])
+        )
+    )
+
+    fig = go.Figure(data=[trace], layout=layout)
+    graphJSON = fig.to_json()
+
+    return jsonify({'graph': graphJSON})
+
+
+
+document.getElementById('generateBtn').addEventListener('click', function() {
+    const lat = document.getElementById('lat').value;
+    const lon = document.getElementById('lon').value;
+
+    if (!lat || !lon) {
+        alert("Please enter both latitude and longitude.");
+        return;
+    }
+
+    fetch('/generate_star_map', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ lat: lat, lon: lon })
+    })
+    .then(response => response.json())
+    .then(data => {
+        const graphDiv = document.getElementById('star-map');
+        Plotly.newPlot(graphDiv, JSON.parse(data.graph).data, JSON.parse(data.graph).layout);
+
+        graphDiv.on('plotly_click', function(data) {
+            const pointIndex = data.points[0].pointIndex;
+            fetch('/star_info', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ pointIndex: pointIndex })
+            })
+            .then(response => response.json())
+            .then(starData => {
+                const starInfoDiv = document.getElementById('star-info');
+                starInfoDiv.innerHTML = `
+                    <h2>Star Information</h2>
+                    <p><strong>Name:</strong> ${starData.pl_name}</p>
+                    <p><strong>Host Star:</strong> ${starData.hostname}</p>
+                    <p><strong>Distance (pc):</strong> ${starData.sy_dist}</p>
+                    <p><strong>Discovery Method:</strong> ${starData.discoverymethod}</p>
+                    <p><strong>Orbital Period (days):</strong> ${starData.pl_orbper}</p>
+                    <p><strong>Stellar Radius (R☉):</strong> ${starData.st_rad}</p>
+                    <p><strong>Magnitude (Vmag):</strong> ${starData.sy_vmag}</p>
+                `;
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    })
+    .catch(error => console.error('Error:', error));
+});
+
+
