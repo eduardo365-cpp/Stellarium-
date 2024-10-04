@@ -1,6 +1,7 @@
 # Stellarium-
 # Test_20241004
-
+# Please donwload the Data file first
+# Then click "main_fixed"
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
