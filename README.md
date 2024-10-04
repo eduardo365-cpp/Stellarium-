@@ -2,6 +2,8 @@
 # Test_20241004
 # Please donwload the Data file first
 # Then click "main_fixed"
+///game started
+
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
