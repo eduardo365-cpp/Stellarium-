@@ -11,16 +11,46 @@ import astropy.units as u
 
 app = Flask(__name__)
 
-# 讀取 CSV 檔案
 
-df = pd.read_csv('PS_2024.10.04_01.33.00.csv')
+
+
+#### csv ####
+
+import csv
+
 # 打開 CSV 檔案
-with open('PS_2024.10.04_01.33.00', newline='', encoding='utf-8') as csvfile:
+with open('your_file.csv', newline='', encoding='utf-8') as csvfile:
     csv_reader = csv.reader(csvfile)
-
-    # 逐行讀取並印出內容
+    
+    # 定義要提取的欄位位置
+    planet_name_index = 0   # 行星名稱在第 0 列
+    brightness_index = 11    # 亮度在第 11 列
+    ra_index = 39           # 赤經在第 39 列
+    declination_index = 41   # 赤緯在第 41 列
+    
+    # 初始化一個列表來儲存提取的數據
+    extracted_data = []
+    
+    # 跳過表頭
+    next(csv_reader)
+    
+    # 逐行讀取 CSV 並提取所需的數據
     for row in csv_reader:
-        print(row)
+        # 提取行星名稱、亮度、赤經、赤緯
+        planet_name = row[planet_name_index]
+        brightness = row[brightness_index]
+        ra = row[ra_index]
+        declination = row[declination_index]
+        
+        # 將提取出的數據存入列表
+        extracted_data.append([planet_name, brightness, ra, declination])
+    
+    # 印出提取出的數據
+    for data in extracted_data:
+        print(f"Planet Name: {data[0]}, Brightness: {data[1]}, RA: {data[2]}, Declination: {data[3]}")
+
+
+
 
 # 將赤經、赤緯和距離轉換為星座標
 ra = df['ra']
