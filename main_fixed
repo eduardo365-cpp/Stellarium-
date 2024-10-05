@@ -4,14 +4,20 @@
 from flask import Flask, render_template, request, jsonify
 import pandas as pd
 import numpy as np
+import csv
 import plotly.graph_objs as go
 from astropy.coordinates import SkyCoord
 import astropy.units as u
 
 app = Flask(__name__)
 
-# 讀取 CSV 檔案
-df = pd.read_csv('PS_2024.10.04_01.33.00.csv')
+# 打開 CSV 檔案
+with open('PS_2024.10.04_01.33.00', newline='', encoding='utf-8') as csvfile:
+    csv_reader = csv.reader(csvfile)
+    
+    # 逐行讀取並印出內容
+    for row in csv_reader:
+        print(row)
 
 # 將赤經、赤緯和距離轉換為星座標
 ra = df['ra']
