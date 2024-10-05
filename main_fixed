@@ -19,7 +19,7 @@ app = Flask(__name__)
 import csv
 
 # 打開 CSV 檔案
-with open('your_file.csv', newline='', encoding='utf-8') as csvfile:
+with open('PS_2024.10.04_01.33.00.csv', newline='', encoding='utf-8') as csvfile:
     csv_reader = csv.reader(csvfile)
     
     # 定義要提取的欄位位置
@@ -36,15 +36,22 @@ with open('your_file.csv', newline='', encoding='utf-8') as csvfile:
     
     # 逐行讀取 CSV 並提取所需的數據
     for row in csv_reader:
-        # 提取行星名稱、亮度、赤經、赤緯
-        planet_name = row[planet_name_index]
-        brightness = row[brightness_index]
-        ra = row[ra_index]
-        declination = row[declination_index]
-        
-        # 將提取出的數據存入列表
-        extracted_data.append([planet_name, brightness, ra, declination])
-    
+        # Check if the row has enough elements before accessing them
+        if len(row) > brightness_index and len(row) > ra_index and len(row) > declination_index:
+            # 提取行星名稱、亮度、赤經、赤緯
+            planet_name = row[planet_name_index]
+            brightness = row[brightness_index]
+            ra = row[ra_index]
+            declination = row[declination_index]
+            
+            # 將提取出的數據存入列表
+            extracted_data.append([planet_name, brightness, ra, declination])
+        else:
+            # If the row is too short, skip it or print a warning
+            print(f"Skipping row: {row}") 
+            # or you could print: print(f"Warning: Row has insufficient elements: {row}")
+            
+            
     # 印出提取出的數據
     for data in extracted_data:
         print(f"Planet Name: {data[0]}, Brightness: {data[1]}, RA: {data[2]}, Declination: {data[3]}")
